@@ -31,15 +31,31 @@ export class OrdersController {
     return await this.ordersService.create(createOrderDto, user);
   }
 
-  @Get('/users/:UserId')
+  @Get()
   @ApiOperation({ summary: '주문 전체 조회 api' })
-  async getOrders() {
-    return await this.ordersService.findAll();
+  async getOrders(@UserInfo() user: User) {
+    return await this.ordersService.findAll(user);
   }
 
-  @Get('/:orderId')
+  @Get('/:id')
   @ApiOperation({ summary: '주문 조회 api' })
-  async getOrder() {
-    return await this.ordersService.findOne();
+  async getOrder(@Param() id: string, @UserInfo() user: User) {
+    return await this.ordersService.findOne(+id, user);
+  }
+
+  @Patch('/:id')
+  @ApiOperation({ summary: '주문 수정 api' })
+  async updateOrder(
+    @Param() id: string,
+    @Body() updateOrderDto: UpdateOrderDto,
+    @UserInfo() user: User,
+  ) {
+    return await this.ordersService.update(+id, updateOrderDto, user);
+  }
+
+  @Delete('/:id')
+  @ApiOperation({ summary: '주문 삭제 api' })
+  async deleteOrder(@Param() id: string, @UserInfo() user: User) {
+    return await this.ordersService.delete(+id, user);
   }
 }

@@ -73,12 +73,17 @@ export class ProductsService {
     return { message: '상품 삭제 완료' };
   }
 
-  // 주문할 때 재고 수량에 따른 품절처리 함수
-  async changeSaleStatus(id: number) {
-    const product = await this.findOne(id);
+  // 재고 수량에 따른 품절처리 함수
+  async changeSaleStatus(id: number, queryRunner: any) {
+    await queryRunner.manager.update(
+      Product,
+      { id },
+      { saleStatus: SaleStatus.SOLDOUT },
+    );
+  }
 
-    product.saleStatus === SaleStatus.ONSALE
-      ? (product.saleStatus = SaleStatus.SOLDOUT)
-      : (product.saleStatus = SaleStatus.ONSALE);
+  // 재고 수량 변경 함수
+  async changeQuantity(id: number, remainder: number, queryRunner: any) {
+    await queryRunner.manager.update(Product, { id }, { quantity: remainder });
   }
 }
