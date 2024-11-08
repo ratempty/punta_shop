@@ -1,6 +1,13 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { USER_ROLES } from '../types/user.type';
 import { ApiProperty } from '@nestjs/swagger';
+import { Order } from 'src/orders/entities/order.entity';
 
 @Entity()
 export class User {
@@ -32,4 +39,7 @@ export class User {
     default: false,
   })
   isDeleted: boolean;
+
+  @OneToMany(() => Order, (order) => order.user)
+  order: Order[];
 }

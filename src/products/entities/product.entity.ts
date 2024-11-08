@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { SaleStatus } from '../types/saleStatus.type';
+import { OrderItem } from 'src/orders/entities/orderItem.entity';
 
 @Entity()
 export class Product {
@@ -20,4 +21,7 @@ export class Product {
 
   @Column({ type: 'boolean', default: false })
   isDeleted: boolean;
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItem: OrderItem[];
 }

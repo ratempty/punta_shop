@@ -4,11 +4,10 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
-import { OrderItemsModule } from './order-items/order-items.module';
 import { User } from './users/entities/user.entity';
 import { Order } from './orders/entities/order.entity';
 import { Product } from './products/entities/product.entity';
-import { OrderItem } from './order-items/entities/order-item.entity';
+import { OrderItem } from './orders/entities/orderItem.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -19,7 +18,6 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     ProductsModule,
     OrdersModule,
-    OrderItemsModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',

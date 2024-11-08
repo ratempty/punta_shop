@@ -23,6 +23,16 @@ export class ProductsService {
     return await this.productRepository.save({ ...createProductDto });
   }
 
+  async findOne(id: number) {
+    const product = await this.productRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!product) throw new NotFoundException('해당 상품이 없습니다.');
+
+    return product;
+  }
+
   async getProducts(user: User) {
     if (user.grade == USER_ROLES.ADMIN) {
       return await this.productRepository.findBy({});
@@ -35,25 +45,40 @@ export class ProductsService {
   }
 
   async updateProduct(id: number, updateProductDto: UpdateProductDto) {
-    const product = await this.productRepository.findOne({
-      where: { id, isDeleted: false },
-    });
+    const product = await this.findOne(id);
 
-    if (!product) throw new NotFoundException('해당 상품이 없습니다.');
+    // 재고 수량을 0으로 변경하는경우 품절처리
+    if (updateProductDto.quantity <= 0) {
+      await this.productRepository.update(
+        { id },
+        { ...updateProductDto, saleStatus: SaleStatus.SOLDOUT },
+      );
+    } else if (product.quantity == 0 && updateProductDto.quantity > 0) {
+      // 재고 수량이 0일때 수량을 추가하는 경우 판매중 처리
+      await this.productRepository.update(
+        { id },
+        { ...updateProductDto, saleStatus: SaleStatus.ONSALE },
+      );
+    } else {
+      await this.productRepository.update({ id }, { ...updateProductDto });
+    }
 
-    await this.productRepository.update({ id }, { ...updateProductDto });
-
-    return await this.productRepository.findOne({ where: { id } });
+    return await this.findOne(id);
   }
 
   async deleteProduct(id: number) {
-    const product = await this.productRepository.findOne({
-      where: { id, isDeleted: false },
-    });
-
-    if (!product) throw new NotFoundException('해당 상품이 없습니다.');
+    await this.findOne(id);
 
     await this.productRepository.update({ id }, { isDeleted: true });
     return { message: '상품 삭제 완료' };
+  }
+
+  // 주문할 때 재고 수량에 따른 품절처리 함수
+  async changeSaleStatus(id: number) {
+    const product = await this.findOne(id);
+
+    product.saleStatus === SaleStatus.ONSALE
+      ? (product.saleStatus = SaleStatus.SOLDOUT)
+      : (product.saleStatus = SaleStatus.ONSALE);
   }
 }
